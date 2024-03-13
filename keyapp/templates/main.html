@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="KEY-M" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../static/img/logo.png" type="image/x-icon">
+    <title>密钥管理系统</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        canvas{
+            /* 默认 300x150  canvas不能在CSS中设置宽高 */
+            background-color: black;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        .main{
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 3px solid green;
+            border-radius: 10px;
+            margin: 5% 0 0 10%;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <canvas width="400" height="200"></canvas>
+        <a href="/main/"><img src="../static/img/key_logo.png" width="280px" style="position: absolute"></a>
+        <img src="../static/img/头像1.png" width="80px" style="position: absolute;margin: 1% 0 0 93%" title="{{ name }}">
+        <a href="/logout/"><img src="../static/img/logout.png" width="60px" style="position: absolute;margin-left: 94%;bottom: 10px" title="点击退出"></a>
+        <div class="main">
+            <div style="position: absolute;width: 150px;height: 150px;margin-left: 26%;margin-top: 10%;color: green;font-size: 22px;font-weight: bold;text-align: center;">
+                <a href="/keycreate/">
+                    <img src="../static/img/密钥生成.png" width="100px" style="border: 4px solid green;border-radius: 15px">
+                </a>
+                <br>密钥生成
+            </div>
+            <div style="position: absolute;width: 150px;height: 150px;margin-left: 66%;margin-top: 10%;color: green;font-size: 22px;font-weight: bold;text-align: center;">
+                <a href="/keymanage/">
+                    <img src="../static/img/manage.png" width="100px" style="border: 4px solid green;border-radius: 15px">
+                </a>
+                <br>密钥管理
+            </div>
+            <div style="position: absolute;width: 150px;height: 150px;margin-left: 26%;margin-top: 30%;color: green;font-size: 22px;font-weight: bold;text-align: center;">
+                <a href="/keylevel/">
+                    <img src="../static/img/level.png" width="100px" style="border: 4px solid green;border-radius: 15px">
+                </a>
+                <br>分级管理
+            </div>
+            <div style="position: absolute;width: 150px;height: 150px;margin-left: 66%;margin-top: 30%;color: green;font-size: 22px;font-weight: bold;text-align: center;">
+                <a href="/logging/">
+                    <img src="../static/img/logging.png" width="100px" height="100px" style="border: 4px solid green;border-radius: 15px">
+                </a>
+                <br>日志记录
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        //1.画布
+        let canvas = document.querySelector('canvas');
+        //2.画笔 2d 平面
+        let ctx = canvas.getContext('2d');
+        //获取浏览器的宽 和 高 赋值 画布 获取可见区域的大小
+        let ww = document.documentElement.clientWidth;
+        let hh = document.documentElement.clientHeight;
+        //赋值
+        canvas.width = ww;
+        canvas.height = hh;
+        //1.绘制的文字  2.X轴的位置  3.Y轴的位置
+        //每个字的大小
+        let fontSize = 10;
+        //一行可以放多少个字  进行取整  73.123456  向上  74   向下  73
+        let clos = Math.floor(ww/fontSize);
+        let num = Array.from({ length: clos }, () => Math.floor(Math.random() * hh / fontSize));
+
+        //2.绘制文字的函数
+        function draw(){
+            //幕布效果  颜色
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';//每绘制一次+0.05
+            //幕布绘制的位置  从X  0  Y  0  到  X  ww  Y  hh  结束
+            ctx.fillRect(0,0,ww,hh);
+
+            //创建一个数字组存放特效字符
+            {#let sec = ['🌟','🌞','✨','☔','😹'];//可自行添加自己喜欢的特效字符#}
+            let sec = ['K','E','Y','M','A','N','A','G','E'];
+            for(let i = 0; i < sec.length; i++){
+                let s = Math.floor(Math.random() * sec.length);
+                str = sec[s];
+            }
+
+            // let str = '❆';//不使用数组的请况
+            ctx.font = '600 '+fontSize+'px 微软雅黑'
+            ctx.fillStyle = 'green'
+
+            for(let i = 0; i < clos; i++){
+                let x = i * fontSize;
+                let y = num[i] * fontSize;
+                ctx.fillText(str,x,y);//核心代码  方法  每次  写一个字
+                num[i]++;
+                if(y > hh && Math.random() > 0.995){
+                    num[i] = 0;
+                }
+            }
+        }
+        setInterval(draw,100);
+    </script>
+</body>
+</html>

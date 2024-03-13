@@ -1,0 +1,430 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="KEY-M" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../static/img/logo.png" type="image/x-icon">
+    <title>密钥管理系统</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas{
+            /* 默认 300x150  canvas不能在CSS中设置宽高 */
+            background-color: black;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        .main{
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 3px solid green;
+            border-radius: 10px;
+            margin: 5% 0 0 10%;
+        }
+        select {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          text-indent: 1px;
+          text-overflow: '';
+          text-align: center;
+
+        }
+
+        /* Custom select styles */
+        .custom-select {
+          position: absolute;
+          {#display: inline-block;#}
+          width: 102px;
+          height: 5vh;
+          font-size: 18px;
+          font-family: 'Arial', sans-serif;
+          overflow: hidden;
+          border-radius: 5px;
+          border: 3px solid green;
+          color: green;
+        }
+
+        .custom-select select {
+          width: 100%;
+          padding: 10px;
+          background-color: black;
+          cursor: pointer;
+          border: none;
+          outline: none;
+          appearance: none;
+          color: green;
+        }
+
+        .custom-select::after {
+          content: '\25BC';
+          position: absolute;
+          top: 50%;
+          right: 10px;
+          transform: translateY(-50%);
+          pointer-events: none;
+        }
+
+        /* Hover and focus styles */
+        .custom-select:hover,
+        .custom-select select:focus {
+          border-color: #2aabd2;
+        }
+        input {
+            padding: 10px;
+            border: 3px solid green;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        /* 添加悬停效果 */
+        input:hover {
+            border-color: #4CAF50; /* 改变边框颜色 */
+        }
+
+        /* 添加焦点效果 */
+        input:focus {
+            border-color: #2196F3; /* 改变边框颜色 */
+            box-shadow: 0 0 5px rgba(33, 150, 243, 0.7); /* 添加阴影效果 */
+        }
+
+        /* 添加圆角效果 */
+        input.rounded {
+            border-radius: 20px;
+        }
+
+        /* 添加背景颜色和文本颜色 */
+        input.styled {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .button {
+            position: absolute;
+            margin-left: 90%;
+            margin-top: 37.5%;
+          display: inline-block;
+          padding: 10px 20px;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
+          text-decoration: none;
+          cursor: pointer;
+          border: 2px solid green;
+          border-radius: 5px;
+          color: green;
+          background-color: #fff;
+          transition: background-color 0.3s, color 0.3s;
+          {#width: 70px;#}
+        }
+
+        /* 鼠标悬停时的样式 */
+        .button:hover {
+          background-color: green;
+          color: #fff;
+        }
+
+        /* 不可点击状态的样式 */
+        .button:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+
+       .button-save {
+            position: absolute;
+            margin-left: 90%;
+            margin-top: 32%;
+          display: inline-block;
+          padding: 10px 20px;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
+          text-decoration: none;
+          cursor: pointer;
+          border: 2px solid green;
+          border-radius: 5px;
+          color: green;
+          background-color: #fff;
+          transition: background-color 0.3s, color 0.3s;
+          {#width: 70px;#}
+        }
+
+        /* 鼠标悬停时的样式 */
+        .button-save:hover {
+          background-color: green;
+          color: #fff;
+        }
+
+        /* 不可点击状态的样式 */
+        .button-save:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+        .RSA, .DES ,.AES, .SELF{
+            display: none;
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <canvas width="400" height="200"></canvas>
+        <a href="/main/"><img src="../static/img/key_logo.png" width="280px" style="position: absolute"></a>
+        <a href="/login/"><img src="../static/img/头像1.png" width="80px" style="position: absolute;margin: 1% 0 0 93%" title="{{ name }}"></a>
+        <a href="/logout/"><img src="../static/img/logout.png" width="60px" style="position: absolute;margin-left: 94%;bottom: 10px" title="点击退出"></a>
+        <div>
+            <a href="/keymanage/" title="点击进入秘钥管理界面"><img src="../static/img/turn.png" width="8%" style="position: absolute;margin: 0.9% 0 0 25%"></a>
+            <a href="/keylevel/" title="点击进入分级管理界面"><img src="../static/img/turn.png" width="8%" style="position: absolute;margin: 0.9% 0 0 47.5%"></a>
+            <a href="/logging/" title="点击进入日志记录界面"><img src="../static/img/turn.png" width="8%" style="position: absolute;margin: 0.9% 0 0 70%"></a>
+            <form id="main" class="main" action="/keycreate/">
+                {% csrf_token %}
+            <div style="width: 150px;margin-left: 46%;margin-top: 1%;color: green;font-size: 30px;font-weight: bold;text-align: center;border: 4px solid green;border-radius: 15px">
+                密钥生成
+            </div>
+
+                <div style="position: absolute;width: 250px;height: 180px;margin-left: 4%;margin-top: 1%;color: green;font-size: 22px;border: 4px solid green;border-radius: 5px">
+                     <div style="margin-top: 18px;margin-left: 10px">
+                         密钥类型：<select id="func" name="func" class="custom-select"  onchange="showDiv()">
+                             <option value="0" selected>-----</option>
+                            <option value="RSA" >RSA</option>
+                            <option value="AES">AES</option>
+                            <option value="DES">DES</option>
+                            <option value="SELF">强密钥</option>
+                        </select>
+                     </div>
+                    <div style="margin-top: 20px;margin-left: 10px">
+                        密钥长度：<input id="length" name="length" style="width: 80px;text-align: center;font-size: 18px;color: green">
+                    </div>
+                    <div style="margin-top: 13px;margin-left: 10px">
+                        密钥等级：<select id="level" name="level" class="custom-select">
+                                <option value="1">高</option>
+                                <option value="2">中</option>
+                                <option value="3">低</option>
+                            </select>
+                    </div>
+                </div>
+                <div id="RSA" class="RSA" style="position:absolute;;width: 80%;height: 28%;margin-left: 4%;margin-top: 25%;color: green;font-size: 22px;border: 4px solid green;border-radius: 5px">
+                    <div style="margin: 20px 0 0 20px">
+                        公钥：<input id="pkey" name="pkey" style="width: 80%;color: white" value="{{ pkey }}" disabled>
+                    </div>
+
+                    <div  style="margin: 20px 0 0 20px">
+                        私钥：<input id="skey" name="skey" style="width: 80%;color: white" value="{{ skey }}" disabled>
+                    </div>
+                </div>
+                <div id="DES" class="DES" style="position:absolute;width: 80%;height: 28%;margin-left: 4%;margin-top: 25%;color: green;font-size: 22px;border: 4px solid green;border-radius: 5px">
+                    <div style="margin: 20px 0 0 20px">
+                        生成密钥：<input id="key" name="key" style="width: 80%;color: white" value="{{ pkey }}" disabled>
+                    </div>
+
+                    <div  style="margin: 20px 0 0 20px">
+                        初始向量：<input id="iv" name="iv" style="width: 80%;color: white" value="{{ skey }}" disabled>
+                    </div>
+                </div>
+                 <div id="AES" class="AES" style="position:absolute;width: 80%;height: 28%;margin-left: 4%;margin-top: 25%;color: green;font-size: 22px;border: 4px solid green;border-radius: 5px">
+                    <div style="margin: 20px 0 0 20px">
+                        生成密钥：<input id="akey" name="akey" style="width: 80%;color: white" value="{{ pkey }}" disabled>
+                    </div>
+
+                    <div  style="margin: 20px 0 0 20px">
+                        初始向量：<input id="aiv" name="aiv" style="width: 80%;color: white" value="{{ skey }}" disabled>
+                    </div>
+                </div>
+                <div id="SELF" class="SELF" style="position:absolute;width: 80%;height: 14%;margin-left: 4%;margin-top: 25%;color: green;font-size: 22px;border: 4px solid green;border-radius: 5px">
+                    <div style="margin: 20px 0 0 20px">
+                        密钥：<input id="slkey" name="slkey" style="width: 80%;color: white" value="{{ pkey }}" disabled>
+                    </div>
+
+                </div>
+
+                <div style="position: absolute;margin: 10px 0 0 55.6%;border: 4px solid green;border-radius: 12px;width: 30%;height: 30%;text-align: center">
+                    <div style="color: green;font-size: 22px;margin-top: 10px">备注</div>
+                    <label for="remark"></label><TEXTAREA id="remark" class="remark" style="width: 80%;height: 60%;border-radius: 11px;border: 3px solid green;color: green;margin-top: 5px;font-size: 21px"></TEXTAREA>
+                </div>
+
+                <div >
+                    <button id="button-save" class="button-save" type="button" onclick="save()" value="1">保存</button>
+
+                    <button id="button" class="button" type="submit" value="2">生成</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+<script src="{% static 'js/jquary.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/echarts.js' %}"></script>
+
+    <script>
+
+        //1.画布
+        let canvas = document.querySelector('canvas');
+        //2.画笔 2d 平面
+        let ctx = canvas.getContext('2d');
+        //获取浏览器的宽 和 高 赋值 画布 获取可见区域的大小
+        let ww = document.documentElement.clientWidth;
+        let hh = document.documentElement.clientHeight;
+        //赋值
+        canvas.width = ww;
+        canvas.height = hh;
+        //1.绘制的文字  2.X轴的位置  3.Y轴的位置
+        //每个字的大小
+        let fontSize = 10;
+        //一行可以放多少个字  进行取整  73.123456  向上  74   向下  73
+        let clos = Math.floor(ww/fontSize);
+        let num = Array.from({ length: clos }, () => Math.floor(Math.random() * hh / fontSize));
+
+        //2.绘制文字的函数
+        function draw(){
+            //幕布效果  颜色
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';//每绘制一次+0.05
+            //幕布绘制的位置  从X  0  Y  0  到  X  ww  Y  hh  结束
+            ctx.fillRect(0,0,ww,hh);
+
+            //创建一个数字组存放特效字符
+            {#let sec = ['🌟','🌞','✨','☔','😹'];//可自行添加自己喜欢的特效字符#}
+            let sec = ['K','E','Y','M','A','N','A','G','E'];
+            for(let i = 0; i < sec.length; i++){
+                let s = Math.floor(Math.random() * sec.length);
+                str = sec[s];
+            }
+
+            // let str = '❆';//不使用数组的请况
+            ctx.font = '600 '+fontSize+'px 微软雅黑'
+            ctx.fillStyle = 'green'
+
+            for(let i = 0; i < clos; i++){
+                let x = i * fontSize;
+                let y = num[i] * fontSize;
+                ctx.fillText(str,x,y);//核心代码  方法  每次  写一个字
+                num[i]++;
+                if(y > hh && Math.random() > 0.995){
+                    num[i] = 0;
+                }
+            }
+        }
+        setInterval(draw,100);
+
+        function save() {
+            if($('#slkey').val()==='' &&$('#akey').val()==='' &&$('#key').val()==='' &&$('#pkey').val()===''){
+                 alert('请先生成密钥')
+            }
+            else{
+                var s1 = '', s2 = '';
+                if ($('#func').val()=='RSA'){
+                    s1 = $('#pkey').val();
+                    s2 = $('#skey').val();
+                }
+                else if ($('#func').val()=='DES'){
+                    s1 = $('#key').val();
+                    s2 = $('#key').val();
+                }
+                else if ($('#func').val()=='AES'){
+                    s1 = $('#akey').val();
+                    s2 = $('#akey').val();
+                }
+                else{
+                    s1 = $('#slkey').val();
+                }
+
+                $.ajax({
+                 url: "/keysave/",
+                 type: "POST",
+                 dataType: "JSON",
+                 data: {'func':$('#func').val(),'length':$('#length').val(),'level':$('#level').val(),'pkey':s1,'skey':s2,'remark':$('#remark').val() },
+                 success: function (res) {
+                    if (res.status){
+                        alert('保存成功')
+                    }
+                 }
+                })
+            }
+        }
+
+        $(function () {
+         //  1.监听表单的提交事件
+         $('#main').on('submit', function (e) {
+             e.preventDefault()                  // 2.阻止表单的默认行为
+             {#$(".gif1").css("display", "flex");#}
+             if($('#func').val()=='RSA' && $('#length').val() <1024){
+                 alert('RSA密钥长度需大于等于1024')
+             }
+             else if($('#length').val()=='')
+                 alert('请输入密钥长度')
+
+             else if($('#func').val()=='0' ){
+                 alert('请选择密钥类型')
+             }
+             else {
+                 $.ajax({
+                 url: "/keycreate/",
+                 type: "POST",
+                 dataType: "JSON",
+                 data: {'func':$('#func').val(),'length':$('#length').val(),'level':$('#level').val()},
+                 success: function (res) {
+                     {#$(".gif1").css("display", "none");#}
+                     if (res.status) {
+                        document.getElementById(res.func).style.display = "block";
+                        if(res.func=='RSA'){
+                            document.getElementById('pkey').value = res.pkey;
+                            document.getElementById('skey').value = res.skey;
+                        }
+                        else if(res.func=='DES') {
+                            document.getElementById('key').value = res.pkey;
+                            document.getElementById('iv').value = res.skey;
+                        }
+                        else if(res.func=='AES') {
+                            document.getElementById('akey').value = res.pkey;
+                            document.getElementById('aiv').value = res.skey;
+                        }
+                        else{
+                            document.getElementById('slkey').value = res.pkey;
+                        }
+                        $("#save").load(location.href + " #save");
+
+                    }
+                 }
+             });
+             }
+
+
+         })
+     })
+
+
+
+
+
+        function showDiv() {
+        // 获取选择的选项值
+            var selectedOption = document.getElementById("func").value;
+            // 隐藏所有的 div
+            document.getElementById("RSA").style.display = "none";
+            document.getElementById("DES").style.display = "none";
+            document.getElementById("AES").style.display = "none";
+            document.getElementById("SELF").style.display = "none";
+            {#document.getElementById("div3").style.display = "none";#}
+
+            // 根据选项值显示对应的 div
+            document.getElementById(selectedOption).style.display = "block";
+        }
+    </script>
+</body>
+</html>

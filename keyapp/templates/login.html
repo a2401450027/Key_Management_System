@@ -1,0 +1,278 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据库加密中间件</title>
+      <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <style>
+    * {
+        /* 初始化 清除页面元素的内外边距 */
+        padding: 0;
+        margin: 0;
+        /* 盒子模型 */
+        box-sizing: border-box;
+    }
+    canvas{
+            /* 默认 300x150  canvas不能在CSS中设置宽高 */
+            background-color: black;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    .Label{
+        padding-left: 25px;
+        text-align: right;
+    }
+    body {
+        /* 弹性布局 让页面元素垂直+水平居中 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* 让页面始终占浏览器可视区域总高度 */
+        height: 100vh;
+        /* 背景渐变色 */
+        {#background-image: url("../static/img/背景.png");#}
+        {#    background-size: cover;#}
+        {#background-image: radial-gradient(circle, #b1a9ad, #9f989d, #8c888e, #7a787e, #68686f, #595b61, #4b4e54, #3e4246, #313537, #242829, #191b1b, #0c0d0d);#}
+    }
+    .login {
+        /* 弹性布局 让子元素称为弹性项目 */
+        display: flex;
+        /* 让弹性项目垂直排列 原理是改变弹性盒子的主轴方向 父元素就是弹性盒子 现在改变后的主轴方向是向下了 */
+        flex-direction: column;
+        /* 让弹性项目在交叉轴方向水平居中 现在主轴的方向是向下 交叉轴的方向是与主轴垂直 交叉轴的方向是向右 */
+        align-items: center;
+        width: 400px;
+        padding: 40px;
+        background-color: rgba(0, 0, 0, 0.2);
+        box-shadow: 0 15px 25px rgba(10, 10, 10, 50.4);
+    }
+    .login h2 {
+        color: #fff;
+        margin-bottom: 30px;
+    }
+    .login .login_box {
+        /* 相对定位 */
+        position: relative;
+        width: 100%;
+    }
+    .login .login_box input {
+        /* 清除input框自带的边框和轮廓 */
+        outline: none;
+        border: none;
+        width: 100%;
+        padding: 10px 0;
+        margin-bottom: 30px;
+        color: #fff;
+        font-size: 16px;
+        border-bottom: 1px solid #fff;
+        /* 背景颜色为透明色 */
+        background-color: transparent;
+    }
+    .login .login_box label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 10px 0;
+        color: #fff;
+        /* 这个属性的默认值是auto 默认是这个元素可以被点击 但是如果我们写了none 就是这个元素不能被点击 , 就好像它可见但是不能用 可望而不可即 */
+        /* 这个就是两者的区别 */
+        pointer-events: none;
+        /* 加个过渡 */
+        transition: all 0.5s;
+    }
+    /* :focus 选择器是当input获得焦点是触发的样式 + 是相邻兄弟选择器 去找与input相邻的兄弟label */
+    /* :valid 选择器是判断input框的内容是否合法,如果合法会执行下面的属性代码,不合法就不会执行,我们刚开始写布局的时候给input框写了required 我们删掉看对比 当没有required的话input框的值就会被认为一直合法,所以一直都是下方的样式 ,但是密码不会,密码框内的值为空,那么这句话局不合法,required不能为空 当我们给密码框写点东西的时候才会执行以下代码*/
+    .login .login_box input:focus + label,
+    .login .login_box input:valid + label {
+        top: -20px;
+        color: #03e9f4;
+        font-size: 12px;
+    }
+    .login a {
+        overflow: hidden;
+        position: relative;
+        padding: 10px 20px;
+        color: #03e9f4;
+        /* 取消a表现原有的下划线 */
+        text-decoration: none;
+        /* 同样加个过渡 */
+        transition: all 0.5s;
+    }
+    .login a:hover {
+        color: #fff;
+        border-radius: 5px;
+        background-color: #03e9f4;
+        box-shadow: 0 0 5px #03e9f4, 0 0 25px #03e9f4, 0 0 50px #03e9f4,
+            0 0 100px #03e9f4;
+    }
+    .login a span {
+        position: absolute;
+    }
+    .login a span:first-child {
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        /* to right 就是往右边 下面的同理 */
+        background: linear-gradient(to right, transparent, #03e9f4);
+        /* 动画 名称 时长 linear是匀速运动 infinite是无限次运动 */
+        animation: move1 1s linear infinite;
+    }
+    .login a span:nth-child(2) {
+        right: 0;
+        top: -100%;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(transparent, #03e9f4);
+        /* 这里多了个0.25s其实是延迟时间 */
+        animation: move2 1s linear 0.25s infinite;
+    }
+    .login a span:nth-child(3) {
+        right: -100%;
+        bottom: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(to left, transparent, #03e9f4);
+        animation: move3 1s linear 0.5s infinite;
+    }
+    .login a span:last-child {
+        left: 0;
+        bottom: -100%;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(#03e9f4, transparent);
+        animation: move4 1s linear 0.75s infinite;
+    }
+    /* 写一下动画 再坚持一下 视频马上就完了 */
+    @keyframes move1 {
+        0% {
+            left: -100%;
+        }
+        50%,
+        100% {
+            left: 100%;
+        }
+    }
+    @keyframes move2 {
+        0% {
+            top: -100%;
+        }
+        50%,
+        100% {
+            top: 100%;
+        }
+    }
+    @keyframes move3 {
+        0% {
+            right: -100%;
+        }
+        50%,
+        100% {
+            right: 100%;
+        }
+    }
+    @keyframes move4 {
+        0% {
+            bottom: -100%;
+        }
+        50%,
+        100% {
+            bottom: 100%;
+        }
+    }
+    {% block sty %}
+    {% endblock %}
+    </style>
+</head>
+<body>
+<div class=" login">
+        <canvas width="400" height="200"></canvas>
+<a href="/main/"><img style="left: 0;top: 0" width="300px"  src="../static/img/key_logo.png"></a>
+   <div class="">
+    <h2>登  录</h2>
+        <form id="regForm" method="post" action="/login/" novalidate>
+            {% csrf_token %}
+            <div class="login_box">
+                {{ form.user }}<label>账号</label>
+                <span style="color: red">{{ form.user.errors.0 }}</span>
+            </div>
+            <div class="login_box">
+                {{ form.password }}<label>密码</label>
+                <span style="color: red">{{ form.password.errors.0 }}</span>
+            </div>
+            <a id="btnSubmit" type="submit" class="btn" onclick="document.getElementById('regForm').submit()">
+                登 录
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </a>
+            <a href="/register/" class="btn">
+                注 册
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </a>
+
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/jquary.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+<script language="javascript">
+      //1.画布
+        let canvas = document.querySelector('canvas');
+        //2.画笔 2d 平面
+        let ctx = canvas.getContext('2d');
+        //获取浏览器的宽 和 高 赋值 画布 获取可见区域的大小
+        let ww = document.documentElement.clientWidth;
+        let hh = document.documentElement.clientHeight;
+        //赋值
+        canvas.width = ww;
+        canvas.height = hh;
+        //1.绘制的文字  2.X轴的位置  3.Y轴的位置
+        //每个字的大小
+        let fontSize = 10;
+        //一行可以放多少个字  进行取整  73.123456  向上  74   向下  73
+        let clos = Math.floor(ww/fontSize);
+        let num = Array.from({ length: clos }, () => Math.floor(Math.random() * hh / fontSize));
+
+        //2.绘制文字的函数
+        function draw(){
+            //幕布效果  颜色
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';//每绘制一次+0.05
+            //幕布绘制的位置  从X  0  Y  0  到  X  ww  Y  hh  结束
+            ctx.fillRect(0,0,ww,hh);
+
+            //创建一个数字组存放特效字符
+            {#let sec = ['🌟','🌞','✨','☔','😹'];//可自行添加自己喜欢的特效字符#}
+            let sec = ['K','E','Y','M','A','N','A','G','E'];
+            for(let i = 0; i < sec.length; i++){
+                let s = Math.floor(Math.random() * sec.length);
+                str = sec[s];
+            }
+
+            // let str = '❆';//不使用数组的请况
+            ctx.font = '600 '+fontSize+'px 微软雅黑'
+            ctx.fillStyle = 'green'
+
+            for(let i = 0; i < clos; i++){
+                let x = i * fontSize;
+                let y = num[i] * fontSize;
+                ctx.fillText(str,x,y);//核心代码  方法  每次  写一个字
+                num[i]++;
+                if(y > hh && Math.random() > 0.995){
+                    num[i] = 0;
+                }
+            }
+        }
+        setInterval(draw,100);
+    </script>
+</script>
+</body>
+</html>

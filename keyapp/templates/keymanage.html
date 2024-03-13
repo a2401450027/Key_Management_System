@@ -1,0 +1,423 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="KEY-M" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../static/img/logo.png" type="image/x-icon">
+    <title>密钥管理系统</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas{
+            /* 默认 300x150  canvas不能在CSS中设置宽高 */
+            background-color: black;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        .main{
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 3px solid green;
+            border-radius: 10px;
+            margin: 5% 0 0 10%;
+        }
+        select {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          text-indent: 1px;
+          text-overflow: '';
+          text-align: center;
+
+        }
+
+        /* Custom select styles */
+        .custom-select {
+          position: absolute;
+          {#display: inline-block;#}
+          width: 102px;
+          height: 5vh;
+          font-size: 18px;
+          font-family: 'Arial', sans-serif;
+          overflow: hidden;
+          border-radius: 5px;
+          border: 3px solid green;
+          color: green;
+        }
+
+        .custom-select select {
+          width: 100%;
+          padding: 10px;
+          background-color: black;
+          cursor: pointer;
+          border: none;
+          outline: none;
+          appearance: none;
+          color: green;
+        }
+
+        .custom-select::after {
+          content: '\25BC';
+          position: absolute;
+          top: 50%;
+          right: 10px;
+          transform: translateY(-50%);
+          pointer-events: none;
+        }
+
+        /* Hover and focus styles */
+        .custom-select:hover,
+        .custom-select select:focus {
+          border-color: #2aabd2;
+        }
+        input {
+            padding: 10px;
+            border: 3px solid green;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        /* 添加悬停效果 */
+        input:hover {
+            border-color: #4CAF50; /* 改变边框颜色 */
+        }
+
+        /* 添加焦点效果 */
+        input:focus {
+            border-color: #2196F3; /* 改变边框颜色 */
+            box-shadow: 0 0 5px rgba(33, 150, 243, 0.7); /* 添加阴影效果 */
+        }
+
+        /* 添加圆角效果 */
+        input.rounded {
+            border-radius: 20px;
+        }
+
+        /* 添加背景颜色和文本颜色 */
+        input.styled {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .button {
+            position: absolute;
+            margin-left: 90%;
+            margin-top: 37.5%;
+          display: inline-block;
+          padding: 10px 20px;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
+          text-decoration: none;
+          cursor: pointer;
+          border: 2px solid green;
+          border-radius: 5px;
+          color: green;
+          background-color: #fff;
+          transition: background-color 0.3s, color 0.3s;
+          {#width: 70px;#}
+        }
+
+        /* 鼠标悬停时的样式 */
+        .button:hover {
+          background-color: green;
+          color: #fff;
+        }
+
+        /* 不可点击状态的样式 */
+        .button:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+
+       .button-save {
+            position: absolute;
+            margin-left: 90%;
+            margin-top: 32%;
+          display: inline-block;
+          padding: 10px 20px;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
+          text-decoration: none;
+          cursor: pointer;
+          border: 2px solid green;
+          border-radius: 5px;
+          color: green;
+          background-color: #fff;
+          transition: background-color 0.3s, color 0.3s;
+          {#width: 70px;#}
+        }
+
+        /* 鼠标悬停时的样式 */
+        .button-save:hover {
+          background-color: green;
+          color: #fff;
+        }
+
+        /* 不可点击状态的样式 */
+        .button-save:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+        .RSA, .DES ,.AES, .SELF{
+            display: none;
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <canvas width="400" height="200"></canvas>
+        <a href="/main/"><img src="../static/img/key_logo.png" width="280px" style="position: absolute"></a>
+        <a href="/login/"><img src="../static/img/头像1.png" width="80px" style="position: absolute;margin: 1% 0 0 93%" title="{{ name }}"></a>
+        <a href="/logout/"><img src="../static/img/logout.png" width="60px" style="position: absolute;margin-left: 94%;bottom: 10px" title="点击退出"></a>
+        <div>
+            <a href="/keycreate/" title="点击进入生成秘钥界面"><img src="../static/img/turn.png" width="8%" style="position: absolute;margin: 0.9% 0 0 25%"></a>
+            <a href="/keylevel/" title="点击进入分级管理界面"><img src="../static/img/turn.png" width="8%" style="position: absolute;margin: 0.9% 0 0 47.5%"></a>
+            <a href="/logging/" title="点击进入日志记录界面"><img src="../static/img/turn.png" width="8%" style="position: absolute;margin: 0.9% 0 0 70%"></a>
+            <form id="main" class="main">
+                {% csrf_token %}
+            <div style="width: 150px;margin-left: 46%;margin-top: 1%;color: green;font-size: 30px;font-weight: bold;text-align: center;border: 4px solid green;border-radius: 15px">
+                密钥管理
+            </div>
+
+                <div style="position: absolute;width: 450px;margin-left: 4%;margin-top: 1%;color: green;font-size: 22px;border-radius: 5px;display: inline">
+                    <div style="margin-top: 10px;margin-left: 10px">
+                        搜索：<input id="search" name="search" style="width: 280px;font-size: 18px;color: green">
+                        <a onclick="searchit()"><img src="../static/img/search.png" style="width: 44px;position: absolute"></a>>
+                    </div>
+
+                </div>
+                <div style="position: absolute;width: 250px;margin-left: 70%;margin-top: 2.5%;color: green;font-size: 22px;border-radius: 5px;display: inline">
+                    上级：{{ fname }}赠与{{ flevel }}级
+                </div>
+
+                <div style="position: absolute;margin: 6% 0 0 5%;border: 4px solid green;border-radius: 12px;width: 90%;height: 70%;text-align: center;display: flex;flex-wrap: wrap;justify-content: center;overflow-y: scroll; /* 允许垂直滚动 */">
+                    {% for item in form %}
+                    <div style="border: 3px solid green;width: 20%;height: 60%;margin: 10px;padding: 2px;border-radius: 10px;box-sizing: border-box;box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);color: green">
+{#                        <a title="复制" onclick="copysit({{ item.id }})" style="color: yellow;font-weight: bold;position: absolute;margin: 1px 0 0 3%;font-size: 18px">🍱</a>#}
+                        <a title="修改" onclick="changeit({{ item.id }})" style="color: yellow;font-weight: bold;position: absolute;margin: 1px 0 0 5%;font-size: 18px">🍪</a>
+                        <a title="删除" onclick="deleteit({{ item.id }})" style="color: red;font-weight: bold;position: absolute;margin: 1px 0 0 7%;font-size: 18px">❌</a>
+                        <h3 style="margin-top: 12%">创建者：{{ item.username }}</h3>
+                        <input type="text" disabled id="keyInput" value="{{ item.key }}" style="height: 10px;width: 180px; text-align: center;border: none;background-color: transparent;font-size: inherit;outline: none;color: green" />
+{#                        <p id="copykey" class="copykey" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;width: 80%">密钥：{{ item.key }}</p>#}
+                        <input type="text" disabled id="funcInput" value="类型：{{ item.method }}" style="height: 12px;width: 120px; text-align: center;border: none;background-color: transparent;font-size: inherit;outline: none;color: green" />
+                        <input type="text" disabled id="lengthInput" value="长度：{{ item.length }}" style="height: 12px;width: 120px; text-align: center;border: none;background-color: transparent;font-size: inherit;outline: none;color: green" />
+                        <input type="text" id="levelInput{{ item.id }}" value="等级：{{ item.level }}" style="height: 12px;width: 80px; text-align: center;border: none;background-color: transparent;font-size: inherit;outline: none;color: green" />
+                        <input type="text" id="remarkInput{{ item.id }}" value="备注：{{ item.remark }}" style="height: 12px;width: 140px; text-align: center;border: none;background-color: transparent;font-size: inherit;outline: none;color: green" />
+
+                    </div>
+                    {% endfor %}
+                </div>
+
+{#                <div >#}
+{#                    <button id="button-save" class="button-save" type="button" onclick="save()" value="1">保存</button>#}
+{##}
+{#                    <button id="button" class="button" type="submit" value="2">生成</button>#}
+{#                </div>#}
+            </form>
+
+        </div>
+    </div>
+
+<script src="{% static 'js/jquary.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/echarts.js' %}"></script>
+
+    <script>
+
+        //1.画布
+        let canvas = document.querySelector('canvas');
+        //2.画笔 2d 平面
+        let ctx = canvas.getContext('2d');
+        //获取浏览器的宽 和 高 赋值 画布 获取可见区域的大小
+        let ww = document.documentElement.clientWidth;
+        let hh = document.documentElement.clientHeight;
+        //赋值
+        canvas.width = ww;
+        canvas.height = hh;
+        //1.绘制的文字  2.X轴的位置  3.Y轴的位置
+        //每个字的大小
+        let fontSize = 10;
+        //一行可以放多少个字  进行取整  73.123456  向上  74   向下  73
+        let clos = Math.floor(ww/fontSize);
+        let num = Array.from({ length: clos }, () => Math.floor(Math.random() * hh / fontSize));
+
+        //2.绘制文字的函数
+        function draw(){
+            //幕布效果  颜色
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';//每绘制一次+0.05
+            //幕布绘制的位置  从X  0  Y  0  到  X  ww  Y  hh  结束
+            ctx.fillRect(0,0,ww,hh);
+
+            //创建一个数字组存放特效字符
+            {#let sec = ['🌟','🌞','✨','☔','😹'];//可自行添加自己喜欢的特效字符#}
+            let sec = ['K','E','Y','M','A','N','A','G','E'];
+            for(let i = 0; i < sec.length; i++){
+                let s = Math.floor(Math.random() * sec.length);
+                str = sec[s];
+            }
+
+            // let str = '❆';//不使用数组的请况
+            ctx.font = '600 '+fontSize+'px 微软雅黑'
+            ctx.fillStyle = 'green'
+
+            for(let i = 0; i < clos; i++){
+                let x = i * fontSize;
+                let y = num[i] * fontSize;
+                ctx.fillText(str,x,y);//核心代码  方法  每次  写一个字
+                num[i]++;
+                if(y > hh && Math.random() > 0.995){
+                    num[i] = 0;
+                }
+            }
+        }
+        setInterval(draw,100);
+
+        function searchit() {
+            // 根据用户的选择执行相应的操作
+            window.location.href = "/keysearch/?search="+$('#search').val();
+        }
+
+
+
+
+        function deleteit(id) {
+            var result = confirm("确认删除?");
+
+            // 根据用户的选择执行相应的操作
+            if (result) {
+                $.ajax({
+                url: "/keydelete/",
+                type: "POST",
+                dataType: "JSON",
+                data: {'id':id},
+                success: function (res) {
+                    if (res.status){
+                        alert('删除成功！')
+                        location.reload();
+                    }
+                    else alert('删除失败')
+                }
+                })
+            }
+            else {
+                alert("取消成功");
+            }
+
+        }
+
+        function changeit(id) {
+            var result = confirm("确认修改?");
+            // 根据用户的选择执行相应的操作
+            var level = '#levelInput'+id.toString(), remark = '#remarkInput'+id.toString();
+
+            if (result) {
+                $.ajax({
+                url: "/keychange/",
+                type: "POST",
+                dataType: "JSON",
+                data: {'id':id,'level':$(level).val(),'remark':$(remark).val()},
+                success: function (res) {
+                    if (res.status){
+                        alert('修改成功！')
+                        location.reload();
+                    }
+                    else alert(res.err)
+                }
+            })
+            } else {
+                alert("取消成功");
+            }
+
+        }
+
+
+
+        $(function () {
+         //  1.监听表单的提交事件
+         $('#main').on('submit', function (e) {
+             e.preventDefault()                  // 2.阻止表单的默认行为
+             {#$(".gif1").css("display", "flex");#}
+             if($('#func').val()=='RSA' && $('#length').val() <1024){
+                 alert('RSA密钥长度需大于等于1024')
+             }
+             else if($('#length').val()=='')
+                 alert('请输入密钥长度')
+
+             else if($('#func').val()=='0' ){
+                 alert('请选择密钥类型')
+             }
+             else {
+                 $.ajax({
+                 url: "/keycreate/",
+                 type: "POST",
+                 dataType: "JSON",
+                 data: {'func':$('#func').val(),'length':$('#length').val(),'level':$('#level').val()},
+                 success: function (res) {
+                     {#$(".gif1").css("display", "none");#}
+                     if (res.status) {
+                        document.getElementById(res.func).style.display = "block";
+                        if(res.func=='RSA'){
+                            document.getElementById('pkey').value = res.pkey;
+                            document.getElementById('skey').value = res.skey;
+                        }
+                        else if(res.func=='DES') {
+                            document.getElementById('key').value = res.pkey;
+                            document.getElementById('iv').value = res.skey;
+                        }
+                        else if(res.func=='AES') {
+                            document.getElementById('akey').value = res.pkey;
+                            document.getElementById('aiv').value = res.skey;
+                        }
+                        else{
+                            document.getElementById('slkey').value = res.pkey;
+                        }
+                        $("#save").load(location.href + " #save");
+
+                    }
+                 }
+             });
+             }
+
+
+         })
+     })
+
+
+
+
+
+        function showDiv() {
+        // 获取选择的选项值
+            var selectedOption = document.getElementById("func").value;
+            // 隐藏所有的 div
+            document.getElementById("RSA").style.display = "none";
+            document.getElementById("DES").style.display = "none";
+            document.getElementById("AES").style.display = "none";
+            document.getElementById("SELF").style.display = "none";
+            {#document.getElementById("div3").style.display = "none";#}
+
+            // 根据选项值显示对应的 div
+            document.getElementById(selectedOption).style.display = "block";
+        }
+    </script>
+</body>
+</html>
