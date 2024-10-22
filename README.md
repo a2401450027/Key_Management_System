@@ -1,0 +1,2 @@
+Hierarchical Key Management System
+HKMS is an advanced key management solution designed to provide organizations with a flexible and secure way to manage and control encryption keys. By establishing a hierarchical key structure, HKMS allows different levels of users or systems to access specific data based on their permissions. This structure not only improves security, but also simplifies the process of key management and distribution.
