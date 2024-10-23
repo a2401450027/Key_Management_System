@@ -19,8 +19,7 @@ from django.urls import path
 from keyapp import views
 
 urlpatterns = [
-    # path('get_userinfo/', views.get_userinfo),
-    path('main/', views.main),                  #主页
+    path('main/', views.main),                  #主 页
     path('keycreate/',views.key_create),        #密钥生成页面
     path('keysave/', views.keysave),            #保存生成的密钥
     path('keymanage/', views.keymanage),        #秘钥管理页面

@@ -35,3 +35,4 @@ class applys(models.Model):
     reservename = models.CharField(verbose_name="审核者姓名", max_length=64, default='小江')
     level = models.IntegerField(verbose_name="申请等级", default=0)
     status = models.CharField(verbose_name="申请状态", max_length=64, default='待审核')
+#111
