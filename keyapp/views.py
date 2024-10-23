@@ -40,6 +40,12 @@ def main(request):
         return JsonResponse({'status': False, 'error': '点击右上角头像登录'})
 
 
+def null(request):
+    return render(request, 'null.html')
+
+def hhh(request):
+    return render(request, 'hhh.html')
+
 # 生成密钥
 def key_create(request):
     if request.method == "GET":
