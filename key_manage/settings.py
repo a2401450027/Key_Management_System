@@ -81,9 +81,9 @@ WSGI_APPLICATION = 'key_manage.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'keymanage',
-        'USER':'root',
-        'PASSWORD':'123456',
+        'NAME': 'keymanage',   #your mysql database name
+        'USER':'root',         #your mysql username
+        'PASSWORD':'123456',   #your mysql password
         'HOST':'127.0.0.1',
         'PORT':3306,
     }
