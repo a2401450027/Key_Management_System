@@ -12,8 +12,8 @@ class UserInfo(models.Model):
 class Keys(models.Model):
     userID = models.IntegerField(verbose_name="userID")
     username = models.CharField(verbose_name="拥有者姓名",max_length=64,default='小江')
-    key = models.CharField(verbose_name="密钥",max_length=9*1024)
-    kvector = models.CharField(verbose_name="初始向量",max_length=8*1024, default='')
+    key = models.CharField(verbose_name="密钥",max_length=6*1024)
+    kvector = models.CharField(verbose_name="初始向量",max_length=6*1024, default='')
     method = models.CharField(verbose_name="密钥类型", max_length=64, default='')
     level = models.IntegerField(verbose_name="等级", default=0)
     length = models.IntegerField(verbose_name="长度", default=0)
